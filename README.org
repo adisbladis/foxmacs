@@ -1,0 +1,111 @@
+#+TITLE: foxmacs
+
+Control Firefox from Emacs.
+
+foxmacs is an Emacs package and a Firefox extension that talk to each other
+over native messaging. From Emacs you can:
+
+- open URLs, or switch to open windows, with completion over your bookmarks
+  and history
+- follow links and press buttons with hints
+- search a page or jump to one of its headings
+- read an article in an Emacs buffer
+- edit a page's text fields in Emacs
+- capture pages and selected text with Org
+
+It's made for [[https://codeberg.org/ezemtsov/ewm][EWM]], where every Firefox window is an Emacs buffer. For now EWM
+is needed to know which window a buffer shows.
+
+* Layout
+
+- =foxmacs/lisp=: the Emacs package, =foxmacs.el=, and an optional Helm
+  interface, =foxmacs-helm.el=
+- =foxmacs/extension=: the Firefox extension
+- =foxmacs/host=: the native messaging host connecting the two, which needs
+  =socat=
+- =tabs-to-windows=: a Firefox extension that moves every new tab into its own
+  window
+- =firefox=: example Firefox settings
+
+* Firefox
+
+With Nix, ~foxmacs-extension~ builds the extension and ~foxmacs-host~ the
+native messaging host, with its manifest under
+=lib/mozilla/native-messaging-hosts=.
+
+Without Nix, run ~npm install~ in =foxmacs/extension= and zip =manifest.json=,
+=background.js=, =page.js= and =node_modules/@mozilla/readability/Readability.js=
+into an =.xpi=. Then tell Firefox about the host in
+=~/.mozilla/native-messaging-hosts/foxmacs.json=:
+
+#+begin_src json
+{
+  "name": "foxmacs",
+  "description": "Foxmacs",
+  "path": "/path/to/foxmacs/foxmacs/host/foxmacs-host",
+  "type": "stdio",
+  "allowed_extensions": ["foxmacs@blad.is"]
+}
+#+end_src
+
+The extension isn't signed, so it needs Firefox Developer Edition or
+Nightly with ~xpinstall.signatures.required~ set to ~false~.
+
+* Emacs
+
+** Installing with Nix
+
+foxmacs and foxmacs-helm come as an overlay for an Emacs package set:
+
+#+begin_src nix
+let
+  foxmacs = import ./path/to/foxmacs/nix { inherit pkgs; };
+  emacsPackages = pkgs.emacsPackages.overrideScope foxmacs.emacsOverlay;
+in
+emacsPackages.emacsWithPackages (epkgs: [
+  epkgs.foxmacs
+  epkgs.foxmacs-helm # only if you use Helm
+])
+#+end_src
+
+With flakes the overlay is ~foxmacs.lib.emacsOverlay~.
+
+** Configuring
+
+#+begin_src emacs-lisp
+(use-package foxmacs
+  :after ewm
+  :demand t
+  :bind (:map ewm-mode-map
+              ("s-b" . foxmacs-open-url)
+              ("s-r" . foxmacs-org-capture)
+              ("s-h" . foxmacs-jump-to-heading)
+              ("s-g" . foxmacs-search-page)
+              ("s-a" . foxmacs-read)
+              ("s-e" . foxmacs-edit)
+              ("s-j" . foxmacs-hint))
+  :custom
+  (foxmacs-capture-file "~/org/web.org")
+  :config
+  (foxmacs-mode 1))
+#+end_src
+
+With Helm:
+
+#+begin_src emacs-lisp
+(use-package foxmacs-helm
+  :after foxmacs
+  :demand t
+  :config
+  (foxmacs-helm-mode 1))
+#+end_src
+
+* Firefox setup examples
+
+These are examples to copy into your own Firefox profile and adapt:
+
+- =firefox/prefs.json=: prefs that open windows instead of tabs, and let
+  Firefox load =userChrome.css=. Add them to your profile's =user.js= as
+  ~user_pref("name", value);~ lines.
+- =firefox/userChrome.css=: hides the tab bar and the address bar. Copy it to
+  =chrome/userChrome.css= in your profile.

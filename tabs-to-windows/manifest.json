@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "Tabs to windows",
+  "version": "0.1",
+  "description": "Move every new tab into its own window",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabs-to-windows@blad.is",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}

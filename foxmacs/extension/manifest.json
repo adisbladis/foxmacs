@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Foxmacs",
+  "version": "0.1",
+  "description": "Control Firefox from Emacs",
+  "permissions": ["nativeMessaging", "tabs", "history", "bookmarks", "search", "webNavigation", "sessions", "<all_urls>"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "foxmacs@blad.is",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}

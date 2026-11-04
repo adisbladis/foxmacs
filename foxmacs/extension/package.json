@@ -1,0 +1,7 @@
+{
+  "name": "foxmacs",
+  "private": true,
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0"
+  }
+}

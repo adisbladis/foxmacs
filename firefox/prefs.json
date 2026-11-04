@@ -1,0 +1,7 @@
+{
+  "browser.link.open_newwindow": 2,
+  "browser.link.open_newwindow.restriction": 0,
+  "browser.link.open_newwindow.override.external": 2,
+  "browser.tabs.opentabfor.middleclick": false,
+  "toolkit.legacyUserProfileCustomizations.stylesheets": true
+}

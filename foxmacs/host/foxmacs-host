@@ -1,0 +1,3 @@
+#!/bin/sh
+# socat keeps retrying until Emacs listens
+exec socat STDIO "UNIX-CONNECT:${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/foxmacs.sock,forever,interval=2"
